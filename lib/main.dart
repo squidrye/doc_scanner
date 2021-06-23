@@ -50,6 +50,7 @@ class LandingPageState extends State<LandingPage> {
                     icon: Icon(Icons.check_circle),
                     onPressed: () {
                       Navigator.push(context,MaterialPageRoute(builder:(context){
+                        print(imagePath);
                         return MyImageCropper(imagePath!);
                       }));
                     },
