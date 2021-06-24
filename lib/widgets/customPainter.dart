@@ -32,7 +32,7 @@ class MyImagePainter extends CustomPainter{
    
    );
    canvas.drawPoints(PointMode.points,offsetlist,Paint()
-   ..strokeWidth=30
+   ..strokeWidth=40
    ..strokeCap=StrokeCap.round
    ..color=Colors.red
    );

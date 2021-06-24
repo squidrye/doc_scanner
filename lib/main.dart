@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'Routes/cropperScreen.dart';
+import 'Routes/displayImage.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,7 +27,8 @@ class LandingPage extends StatefulWidget {
 class LandingPageState extends State<LandingPage> {
   // PickedFile? _pickedimage, _imageFromCam, _imageFromGallery;
   File? imageFile;
-  String? imagePath;
+  PickedFile? image;
+  bool isCropped = false;
   Future<String?> imagePicker(ImageSource source) async {
     PickedFile? _temp = await ImagePicker().getImage(source: source);
     if (_temp != null) {
@@ -33,6 +36,10 @@ class LandingPageState extends State<LandingPage> {
     }
     return null;
   }
+
+  // void display(){
+  //   if(isCropped==true)setState((){});
+  // }
   //######BUILD WIDGET STARTS HERE#########//
 
   Widget build(BuildContext context) {
@@ -40,25 +47,45 @@ class LandingPageState extends State<LandingPage> {
       appBar: AppBar(
         title: Text("Doc Scanner"),
       ),
-      body: imagePath == null
+      body: image == null
           ? Text("Image Will be shown here")
-          : SingleChildScrollView(
-              child: Center(
-                child: Column(children: [
-                  Image.file(File(imagePath!)),
-                  IconButton(
-                    icon: Icon(Icons.check_circle),
-                    onPressed: () {
-                      Navigator.push(context,MaterialPageRoute(builder:(context){
-                        print(imagePath);
-                        return MyImageCropper(imagePath!);
-                      }));
-                    },
-                  )
-                ]),
-              ),
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                DisplayImage(image: image!),
+                Container(
+                  height: 65,
+                  width: 65,
+                  child: Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30)),
+                    child: ClipOval(
+                      child: Material(
+                        color:Theme.of(context).primaryColor,
+                        child: InkWell(
+                          
+                          child: SizedBox(
+                            child: Icon(Icons.check,
+                                size:40,
+                                color: Theme.of(context).scaffoldBackgroundColor),
+                          ),
+                          onTap: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) {
+                              // print(imagePath);
+                              return MyImageCropper(image: image!);
+                            }));
+                            // display();
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
             ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () {
@@ -85,15 +112,16 @@ class LandingPageState extends State<LandingPage> {
                               title: Text("Camera"),
                               onTap: () async {
                                 //Image Picker
+                                if(await Permission.camera.request().isGranted){
                                 String? _localCameraPath =
                                     await imagePicker(ImageSource.camera);
                                 // _pickedimage = _imageFromCam;
                                 setState(() {
                                   if (_localCameraPath != null)
-                                    imagePath = _localCameraPath;
+                                    image = PickedFile(_localCameraPath);
                                 });
                                 Navigator.of(ctx).pop();
-                              }),
+                              }}),
                           ListTile(
                               minVerticalPadding: 7,
                               leading: Icon(
@@ -102,15 +130,16 @@ class LandingPageState extends State<LandingPage> {
                               ),
                               title: Text("Gallery"),
                               onTap: () async {
+                                if(await Permission.storage.request().isGranted){
                                 String? _localGalleryPath =
                                     await imagePicker(ImageSource.gallery);
                                 Navigator.of(ctx).pop();
-
+                                
                                 setState(() {
                                   if (_localGalleryPath != null)
-                                    imagePath = _localGalleryPath;
+                                    image = PickedFile(_localGalleryPath);
                                 });
-                              })
+                              }})
                         ],
                       ),
                     ),
