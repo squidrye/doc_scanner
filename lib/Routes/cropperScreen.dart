@@ -242,8 +242,8 @@ class MyImageCropperState extends State<MyImageCropper> {
     return Column(children: [
       Center(
           child: cropImage
-              ? Center(child: Text("Image is successfully Cropped\n\n\nProcessing Image Please Wait"))
-              : Center(child: Text("Image not loaded yet"))),
+              ? Center(child: Text("Image is successfully Cropped\n\n\nProcessing Image Please Wait",style:TextStyle(color:Colors.white)),)
+              : Center(child: Text("Image not loaded yet",style:TextStyle(color:Colors.white)))),
       // ElevatedButton(
       //     child: Text("Next"),
       //     onPressed: () {

@@ -79,7 +79,7 @@ class ShowCropImageState extends State<ShowCropImage> {
       appBar: AppBar(title: Text("Display")),
       body: save
           ? Center(
-              child: Text("Image Saved at Internal Storage/Flutter_Scanner"))
+              child: Text("Image Saved at Internal Storage/Flutter_Scanner",style:TextStyle(color:Colors.white)))
           : orCond(),
     );
   }
