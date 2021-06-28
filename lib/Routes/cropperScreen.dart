@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:simple_edge_detection/edge_detection.dart';
 import '../widgets/customPainter.dart';
 import 'package:image_picker/image_picker.dart';
+import './showCroppedImage.dart';
 
 class MyImageCropper extends StatefulWidget {
   final PickedFile image;
@@ -241,25 +242,25 @@ class MyImageCropperState extends State<MyImageCropper> {
     return Column(children: [
       Center(
           child: cropImage
-              ? Text("Image is succefully Cropped")
-              : Text("Image not loaded yet")),
-      ElevatedButton(
-          child: Text("Next"),
-          onPressed: () {
-            // Navigator.push(context,MaterialPageRoute(
-            //   builder:(context){
-            //     return Scaffold(
-            //       appBar:AppBar(title:Text("Cropped Image Display")),
-            //       body:DisplayImage(image: widget.image,)
-            //     );
-            //   }
-            // ));
-            imageCache!.clearLiveImages();
-            imageCache!.clear();
-            Timer(Duration(milliseconds: 1500), () {
-              Navigator.of(context).pop();
-            });
-          }),
+              ? Center(child: Text("Image is successfully Cropped\n\n\nProcessing Image Please Wait"))
+              : Center(child: Text("Image not loaded yet"))),
+      // ElevatedButton(
+      //     child: Text("Next"),
+      //     onPressed: () {
+      //       // Navigator.push(context,MaterialPageRoute(
+      //       //   builder:(context){
+      //       //     return Scaffold(
+      //       //       appBar:AppBar(title:Text("Cropped Image Display")),
+      //       //       body:DisplayImage(image: widget.image,)
+      //       //     );
+      //       //   }
+      //       // ));
+      //       imageCache!.clearLiveImages();
+      //       imageCache!.clear();
+      //       Timer(Duration(milliseconds: 1500), () {
+      //         Navigator.of(context).pop();
+      //       });
+      //     }),
     ]);
   }
 
@@ -275,13 +276,43 @@ class MyImageCropperState extends State<MyImageCropper> {
         bottomLeft: redDotList[6],
         bottomRight: redDotList[4]);
     EdgeDetector().processImage(
-        widget.image.path, edgeDetectionResult, rotation * 90.0 - 1);
+        widget.image.path, edgeDetectionResult, rotation * 90.0* - 1);
 
     setState(() {
       isImageLoaded = false;
     });
+    Timer(Duration(milliseconds: 2000), () {
+      // Navigator.push(context, MaterialPageRoute(builder: (BuildContext ctx) {
+      //   return ShowCropImage(widget.image);
+      // }));
+
+      Navigator.popAndPushNamed(context, "Routes/showCroppedImage.dart",arguments:widget.image);
+    });
   }
 
+  Widget rotate() {
+    return BottomAppBar(
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  rotation--;
+                });
+              },
+              icon: Icon(Icons.rotate_left)),
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  rotation++;
+                });
+              },
+              icon: Icon(Icons.rotate_right))
+        ],
+      ),
+    );
+  }
   //Custom Painter
 
   Widget build(BuildContext context) {
@@ -290,7 +321,7 @@ class MyImageCropperState extends State<MyImageCropper> {
         title: Text("Cropping Screen"),
       ),
       body: _buildImage(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.check),
         onPressed: () {
@@ -300,6 +331,7 @@ class MyImageCropperState extends State<MyImageCropper> {
           processPop();
         },
       ),
+      bottomNavigationBar: rotate(),
     );
   }
 }

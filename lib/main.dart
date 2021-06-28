@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'Routes/cropperScreen.dart';
-import 'Routes/displayImage.dart';
+import 'Routes/showCroppedImage.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() {
@@ -12,10 +12,32 @@ void main() {
 class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        textTheme: TextTheme(
+          bodyText2:TextStyle(fontSize: 24) 
+        ),
+      ),
       title: "Document Scanner",
       home: LandingPage(),
+      onGenerateRoute: routes,
     );
   }
+}
+
+PickedFile? image;
+Route routes(RouteSettings settings) {
+  if (settings.name == 'Routes/cropperScreen.dart') {
+    return MaterialPageRoute(builder: (context) {
+      return MyImageCropper(image: image!);
+    });
+  } else if (settings.name == 'Routes/showCroppedImage.dart') {
+    return MaterialPageRoute(builder: (context) {
+      return ShowCropImage(image!);
+    });
+  } else
+    return MaterialPageRoute(builder: (context) {
+      return ShowCropImage(image!);
+    });
 }
 
 class LandingPage extends StatefulWidget {
@@ -27,7 +49,7 @@ class LandingPage extends StatefulWidget {
 class LandingPageState extends State<LandingPage> {
   // PickedFile? _pickedimage, _imageFromCam, _imageFromGallery;
   File? imageFile;
-  PickedFile? image;
+
   bool isCropped = false;
   Future<String?> imagePicker(ImageSource source) async {
     PickedFile? _temp = await ImagePicker().getImage(source: source);
@@ -47,48 +69,24 @@ class LandingPageState extends State<LandingPage> {
       appBar: AppBar(
         title: Text("Doc Scanner"),
       ),
-      body: image == null
-          ? Text("Image Will be shown here")
-          : Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+      body: Center(
+        child: InkWell(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.width * 0.7,
+            decoration: BoxDecoration(
+              border: Border.all(style: BorderStyle.solid, width: 2),
+              borderRadius: BorderRadius.all(Radius.circular(23)),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                DisplayImage(image: image!),
-                Container(
-                  height: 65,
-                  width: 65,
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                    child: ClipOval(
-                      child: Material(
-                        color:Theme.of(context).primaryColor,
-                        child: InkWell(
-                          
-                          child: SizedBox(
-                            child: Icon(Icons.check,
-                                size:40,
-                                color: Theme.of(context).scaffoldBackgroundColor),
-                          ),
-                          onTap: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              // print(imagePath);
-                              return MyImageCropper(image: image!);
-                            }));
-                            // display();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                )
+                Text("Click Here to add image"),
+                Icon(Icons.add_a_photo_rounded, size: 64),
               ],
             ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add),
-          onPressed: () {
+          ),
+          onTap: () {
             showModalBottomSheet<void>(
                 context: context,
                 builder: (BuildContext ctx) {
@@ -112,16 +110,26 @@ class LandingPageState extends State<LandingPage> {
                               title: Text("Camera"),
                               onTap: () async {
                                 //Image Picker
-                                if(await Permission.camera.request().isGranted){
-                                String? _localCameraPath =
-                                    await imagePicker(ImageSource.camera);
-                                // _pickedimage = _imageFromCam;
-                                setState(() {
-                                  if (_localCameraPath != null)
-                                    image = PickedFile(_localCameraPath);
-                                });
-                                Navigator.of(ctx).pop();
-                              }}),
+                                if (await Permission.camera
+                                    .request()
+                                    .isGranted) {
+                                  String? _localCameraPath =
+                                      await imagePicker(ImageSource.camera);
+                                  // _pickedimage = _imageFromCam;
+                                  setState(() {
+                                    if (_localCameraPath != null) {
+                                      image = PickedFile(_localCameraPath);
+                                      Navigator.push(context, MaterialPageRoute(
+                                          builder: (BuildContext ctx) {
+                                        return MyImageCropper(
+                                            image:
+                                                image!); //new Page where we can see the image
+                                      }));
+                                    }
+                                  });
+                                  // Navigator.of(ctx).pop();
+                                }
+                              }),
                           ListTile(
                               minVerticalPadding: 7,
                               leading: Icon(
@@ -130,22 +138,31 @@ class LandingPageState extends State<LandingPage> {
                               ),
                               title: Text("Gallery"),
                               onTap: () async {
-                                if(await Permission.storage.request().isGranted){
-                                String? _localGalleryPath =
-                                    await imagePicker(ImageSource.gallery);
-                                Navigator.of(ctx).pop();
-                                
-                                setState(() {
-                                  if (_localGalleryPath != null)
-                                    image = PickedFile(_localGalleryPath);
-                                });
-                              }})
+                                if (await Permission.storage
+                                    .request()
+                                    .isGranted) {
+                                  String? _localGalleryPath =
+                                      await imagePicker(ImageSource.gallery);
+                                  // Navigator.of(ctx).pop();
+                                  setState(() {
+                                    if (_localGalleryPath != null) {
+                                      image = PickedFile(_localGalleryPath);
+                                      Navigator.push(context, MaterialPageRoute(
+                                          builder: (BuildContext ctx) {
+                                        return MyImageCropper(image: image!);
+                                      }));
+                                    }
+                                  });
+                                }
+                              })
                         ],
                       ),
                     ),
                   );
                 });
-          }),
+          },
+        ),
+      ),
     );
   }
 }

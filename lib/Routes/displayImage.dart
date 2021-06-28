@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 class DisplayImage extends StatefulWidget {
   final PickedFile image;
 
-  DisplayImage({required this.image});
+  DisplayImage(this.image);
   State<StatefulWidget> createState() {
     return DisplayImageState();
   }
