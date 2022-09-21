@@ -24,8 +24,8 @@ dependencies:
   flutter:
     sdk: flutter
   image_picker: ^0.8.0+4
-  simple_edge_detection: 
-    path: ./API/flutter-simple-edge-detection
+  simple_edge_detection:
+    git: https://github.com/flutter-clutter/flutter-simple-edge-detection.git
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2

@@ -275,8 +275,9 @@ class MyImageCropperState extends State<MyImageCropper> {
         topRight: redDotList[2],
         bottomLeft: redDotList[6],
         bottomRight: redDotList[4]);
-    EdgeDetector().processImage(
-        widget.image.path, edgeDetectionResult, rotation * 90.0* - 1);
+
+   await EdgeDetection.processImage(
+        widget.image.path, edgeDetectionResult);
 
     setState(() {
       isImageLoaded = false;
